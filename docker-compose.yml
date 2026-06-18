@@ -1,7 +1,6 @@
 services:
   fastapi:
     image: python:3.11-slim
-    container_name: flight_delays_fastapi
     working_dir: /app
     command:
       - sh
@@ -17,7 +16,6 @@ services:
 
   mlflow:
     image: ghcr.io/mlflow/mlflow:latest
-    container_name: mlflow
     command:
       - mlflow
       - server
@@ -40,7 +38,6 @@ services:
 
   postgres:
     image: postgres:15
-    container_name: mlops_tp1_airflow_postgres
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -55,7 +52,6 @@ services:
 
   airflow:
     image: apache/airflow:3.2.2
-    container_name: mlops_tp1_airflow
     depends_on:
       postgres:
         condition: service_healthy
@@ -65,7 +61,7 @@ services:
       AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       AIRFLOW__API__SECRET_KEY: dev-secret-key
-      _PIP_ADDITIONAL_REQUIREMENTS: pandas scikit-learn
+      _PIP_ADDITIONAL_REQUIREMENTS: pandas scikit-learn joblib mlflow
     ports:
       - "8080:8080"
     volumes:
