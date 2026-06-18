@@ -26,6 +26,9 @@ services:
       - --backend-store-uri
       - sqlite:////mlflow/mlflow.db
       - --default-artifact-root
+      - mlflow-artifacts:/
+      - --serve-artifacts
+      - --artifacts-destination
       - /mlflow/artifacts
       - --allowed-hosts
       - "*"
@@ -55,12 +58,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      mlflow:
+        condition: service_started
     environment:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
       AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       AIRFLOW__API__SECRET_KEY: dev-secret-key
+      MLFLOW_TRACKING_URI: http://mlflow:5000
       _PIP_ADDITIONAL_REQUIREMENTS: pandas scikit-learn joblib mlflow
     ports:
       - "8080:8080"

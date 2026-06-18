@@ -36,7 +36,7 @@ NUMERIC_FEATURES = [
 
 
 
-def train_model(max_iter=1000, C=1.0):
+def train_model(max_iter=1000, C=1.0, class_weight="balanced", run_name=None):
 
     train_df = pd.read_csv(TRAIN_DATA_PATH)
 
@@ -48,10 +48,16 @@ def train_model(max_iter=1000, C=1.0):
     x_test = test_df.drop(columns=[TARGET_COLUMN])
     y_test = test_df[TARGET_COLUMN]
 
-    with mlflow.start_run():
+    if class_weight in {"none", "None", ""}:
+        class_weight = None
+
+    mlflow.set_experiment("flight-delay-pipeline")
+
+    with mlflow.start_run(run_name=run_name):
 
         mlflow.log_param("max_iter", max_iter)
         mlflow.log_param("C", C)
+        mlflow.log_param("class_weight", class_weight)
 
         preprocessor = ColumnTransformer(
             transformers=[
@@ -76,7 +82,7 @@ def train_model(max_iter=1000, C=1.0):
                     LogisticRegression(
                         max_iter=max_iter,
                         C=C,
-                        class_weight="balanced"
+                        class_weight=class_weight,
                     ),
                 ),
             ]
