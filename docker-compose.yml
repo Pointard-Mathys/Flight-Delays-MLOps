@@ -67,7 +67,7 @@ services:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
       AIRFLOW__API__SECRET_KEY: dev-secret-key
       MLFLOW_TRACKING_URI: http://mlflow:5000
-      _PIP_ADDITIONAL_REQUIREMENTS: pandas scikit-learn joblib mlflow
+      _PIP_ADDITIONAL_REQUIREMENTS: pandas scikit-learn joblib mlflow dill
     ports:
       - "8080:8080"
     volumes:
