@@ -1,0 +1,23 @@
+artifact_path: file:C:/Users/mathy/OneDrive - Ynov/Mathys/ynov/M2/Mlops/projet/Flight-Delays-MLOps/mlruns/1/models/m-2354d0a9d7ed462f96b37ce14749fd23/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.skops
+    predict_fn: predict
+    python_version: 3.12.10
+  sklearn:
+    code: null
+    pickled_model: model.skops
+    serialization_format: skops
+    sklearn_version: 1.9.0
+    skops_trusted_types: null
+mlflow_version: 3.14.0
+model_id: m-2354d0a9d7ed462f96b37ce14749fd23
+model_size_bytes: 418403
+model_uuid: m-2354d0a9d7ed462f96b37ce14749fd23
+prompts: null
+run_id: 7cec0eec780b485087a17e1afa44617f
+utc_time_created: '2026-06-18 14:29:15.151405'
