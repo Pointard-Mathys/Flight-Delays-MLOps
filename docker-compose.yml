@@ -1,0 +1,99 @@
+services:
+  fastapi:
+    image: python:3.11-slim
+    working_dir: /app
+    command:
+      - sh
+      - -c
+      - |
+        pip install --no-cache-dir -r requirements.txt
+        uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/app
+    restart: unless-stopped
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:latest
+    command:
+      - mlflow
+      - server
+      - --host
+      - 0.0.0.0
+      - --port
+      - "5000"
+      - --backend-store-uri
+      - sqlite:////mlflow/mlflow.db
+      - --default-artifact-root
+      - mlflow-artifacts:/
+      - --serve-artifacts
+      - --artifacts-destination
+      - /mlflow/artifacts
+      - --allowed-hosts
+      - "*"
+    ports:
+      - "5000:5000"
+    volumes:
+      - mlflow-data:/mlflow
+    restart: unless-stopped
+
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+
+  airflow:
+    image: apache/airflow:3.2.2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mlflow:
+        condition: service_started
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__AUTH_MANAGER: airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+      AIRFLOW__API__SECRET_KEY: dev-secret-key
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      _PIP_ADDITIONAL_REQUIREMENTS: pandas scikit-learn joblib mlflow dill
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./src:/opt/airflow/project/src
+      - ./data:/opt/airflow/project/data
+      - ./artifacts:/opt/airflow/project/artifacts
+    command:
+      - bash
+      - -c
+      - |
+        airflow db migrate
+        airflow fab-db migrate
+        airflow users create \
+          --username admin \
+          --password admin \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@example.com || true
+        airflow dag-processor &
+        airflow scheduler &
+        exec airflow api-server
+
+volumes:
+  postgres-db-volume:
+  mlflow-data:

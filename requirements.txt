@@ -1,0 +1,11 @@
+dvc
+fastapi
+uvicorn[standard]
+pandas
+scikit-learn
+joblib
+dvc-gdrive
+mlflow
+dill
+pytest
+httpx

@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Environments
+.venv/
+venv/
+env/
+.env
+.env.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data and artifacts
+data/raw/*
+data/interim/*
+data/processed/*
+data/external/*
+artifacts/*
+!data/raw/.gitkeep
+!data/interim/.gitkeep
+!data/processed/.gitkeep
+!data/external/.gitkeep
+!artifacts/.gitkeep
+
+# DVC
+/dvc.lock
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
