@@ -1,0 +1,23 @@
+artifact_path: file:C:/Users/mathy/OneDrive - Ynov/Mathys/ynov/M2/Mlops/Asyn/mlruns/1/models/m-a43b69133e5b40e1810f115c92cad7d6/artifacts
+flavors:
+  python_function:
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.sklearn
+    model_path: model.skops
+    predict_fn: predict
+    python_version: 3.12.10
+  sklearn:
+    code: null
+    pickled_model: model.skops
+    serialization_format: skops
+    sklearn_version: 1.9.0
+    skops_trusted_types: null
+mlflow_version: 3.14.0
+model_id: m-a43b69133e5b40e1810f115c92cad7d6
+model_size_bytes: 418402
+model_uuid: m-a43b69133e5b40e1810f115c92cad7d6
+prompts: null
+run_id: 2ce64a95e5ef4b2584a339b630938846
+utc_time_created: '2026-06-23 11:04:51.061598'
