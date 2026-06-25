@@ -161,7 +161,24 @@ class PredictionResponse(BaseModel):
 
 
 def log_event(level: int, event: str, **fields: Any) -> None:
-    logger.log(level, json.dumps({"event": event, **fields}, ensure_ascii=False))
+    logger.log(level, json.dumps({"event": event, **fields}, ensure_ascii=False, default=str))
+
+
+def jsonable_validation_errors(errors: list[dict]) -> list[dict]:
+    """Convertit les erreurs Pydantic en structures strictement JSON-serialisables.
+
+    Pydantic place parfois l'exception d'origine (ex: ValueError) dans le champ
+    'ctx' d'une erreur de validation, ce qui casse l'encodage JSON natif. Cette
+    fonction remplace ces objets par leur representation textuelle.
+    """
+    safe_errors = []
+    for error in errors:
+        safe_error = dict(error)
+        ctx = safe_error.get("ctx")
+        if isinstance(ctx, dict):
+            safe_error["ctx"] = {key: str(value) for key, value in ctx.items()}
+        safe_errors.append(safe_error)
+    return safe_errors
 
 
 def detect_point_anomaly(payload: FlightPredictionRequest) -> list[str]:
@@ -202,13 +219,14 @@ async def validation_exception_handler(
     exc: RequestValidationError,
 ) -> JSONResponse:
     metrics_state["validation_errors_total"] += 1
-    log_event(logging.WARNING, "validation_error", path=str(request.url.path), errors=exc.errors())
+    safe_errors = jsonable_validation_errors(exc.errors())
+    log_event(logging.WARNING, "validation_error", path=str(request.url.path), errors=safe_errors)
     return JSONResponse(
         status_code=422,
         content={
             "error": "validation_error",
             "message": "La requete ne respecte pas le schema attendu.",
-            "details": exc.errors(),
+            "details": safe_errors,
         },
     )
 
